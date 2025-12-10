@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using GymTrack.Models;
 
 namespace GymTrack.Data
 {
@@ -9,5 +10,6 @@ namespace GymTrack.Data
             : base(options)
         {
         }
+        public DbSet<GymTrack.Models.FitnessCenter> FitnessCenter { get; set; } = default!;
     }
 }
