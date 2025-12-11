@@ -11,5 +11,6 @@ namespace GymTrack.Data
         {
         }
         public DbSet<GymTrack.Models.FitnessCenter> FitnessCenter { get; set; } = default!;
+        public DbSet<GymTrack.Models.Trainer> Trainer { get; set; } = default!;
     }
 }
