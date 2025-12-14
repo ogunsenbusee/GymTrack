@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GymTrack.Data;
 using GymTrack.Models;
+using System.Linq;
 
 namespace GymTrack.Controllers
 {
@@ -22,26 +20,20 @@ namespace GymTrack.Controllers
         // GET: Trainers
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Trainer
-                .Include(t => t.FitnessCenter);
+            var applicationDbContext = _context.Trainer.Include(t => t.FitnessCenter);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Trainers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trainer = await _context.Trainer
                 .Include(t => t.FitnessCenter)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (trainer == null)
-            {
-                return NotFound();
-            }
+
+            if (trainer == null) return NotFound();
 
             return View(trainer);
         }
@@ -49,8 +41,11 @@ namespace GymTrack.Controllers
         // GET: Trainers/Create
         public IActionResult Create()
         {
-            // Dropdown’da Id yerine Name gözüksün
-            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenter, "Id", "Name");
+            ViewData["FitnessCenterId"] = new SelectList(
+                _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
+                "Id",
+                "Name"
+            );
             return View();
         }
 
@@ -66,26 +61,29 @@ namespace GymTrack.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Hata durumunda da yine Name göster
-            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenter, "Id", "Name", trainer.FitnessCenterId);
+            ViewData["FitnessCenterId"] = new SelectList(
+                _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
+                "Id",
+                "Name",
+                trainer.FitnessCenterId
+            );
             return View(trainer);
         }
 
         // GET: Trainers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trainer = await _context.Trainer.FindAsync(id);
-            if (trainer == null)
-            {
-                return NotFound();
-            }
+            if (trainer == null) return NotFound();
 
-            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenter, "Id", "Name", trainer.FitnessCenterId);
+            ViewData["FitnessCenterId"] = new SelectList(
+                _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
+                "Id",
+                "Name",
+                trainer.FitnessCenterId
+            );
             return View(trainer);
         }
 
@@ -94,10 +92,7 @@ namespace GymTrack.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Specialty,Bio,FitnessCenterId")] Trainer trainer)
         {
-            if (id != trainer.Id)
-            {
-                return NotFound();
-            }
+            if (id != trainer.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -108,37 +103,32 @@ namespace GymTrack.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TrainerExists(trainer.Id))
-                    {
+                    if (!_context.Trainer.Any(e => e.Id == trainer.Id))
                         return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenter, "Id", "Name", trainer.FitnessCenterId);
+            ViewData["FitnessCenterId"] = new SelectList(
+                _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
+                "Id",
+                "Name",
+                trainer.FitnessCenterId
+            );
             return View(trainer);
         }
 
         // GET: Trainers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var trainer = await _context.Trainer
                 .Include(t => t.FitnessCenter)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (trainer == null)
-            {
-                return NotFound();
-            }
+
+            if (trainer == null) return NotFound();
 
             return View(trainer);
         }
@@ -150,17 +140,10 @@ namespace GymTrack.Controllers
         {
             var trainer = await _context.Trainer.FindAsync(id);
             if (trainer != null)
-            {
                 _context.Trainer.Remove(trainer);
-            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool TrainerExists(int id)
-        {
-            return _context.Trainer.Any(e => e.Id == id);
         }
     }
 }
