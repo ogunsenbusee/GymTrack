@@ -7,13 +7,13 @@
 <h1>Trainers</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
 
-<table class="table">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>FullName</th>
+            <th>Full Name</th>
             <th>Specialty</th>
             <th>Bio</th>
             <th>Fitness Center</th>
@@ -21,17 +21,34 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.Specialty</td>
+                    <td>
+                        @(string.IsNullOrWhiteSpace(item.Bio)
+                                        ? "-"
+                                        : item.Bio.Length > 50
+                                        ? item.Bio.Substring(0, 50) + "..."
+                                        : item.Bio)
+                    </td>
+                    <td>@(item.FitnessCenter?.Name ?? "-")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@item.FullName</td>
-                <td>@item.Specialty</td>
-                <td>@item.Bio</td>
-                <td>@item.FitnessCenter?.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <td colspan="5" class="text-center">
+                    No trainers found.
                 </td>
             </tr>
         }

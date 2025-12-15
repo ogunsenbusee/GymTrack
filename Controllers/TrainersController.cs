@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GymTrack.Data;
 using GymTrack.Models;
-using System.Linq;
 
 namespace GymTrack.Controllers
 {
@@ -20,8 +20,10 @@ namespace GymTrack.Controllers
         // GET: Trainers
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Trainer.Include(t => t.FitnessCenter);
-            return View(await applicationDbContext.ToListAsync());
+            var trainers = _context.Trainer
+                .Include(t => t.FitnessCenter);
+
+            return View(await trainers.ToListAsync());
         }
 
         // GET: Trainers/Details/5
@@ -94,29 +96,38 @@ namespace GymTrack.Controllers
         {
             if (id != trainer.Id) return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(trainer);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Trainer.Any(e => e.Id == trainer.Id))
-                        return NotFound();
-                    throw;
-                }
-                return RedirectToAction(nameof(Index));
+                ViewData["FitnessCenterId"] = new SelectList(
+                    _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
+                    "Id",
+                    "Name",
+                    trainer.FitnessCenterId
+                );
+                return View(trainer);
             }
 
-            ViewData["FitnessCenterId"] = new SelectList(
-                _context.FitnessCenter.AsNoTracking().OrderBy(fc => fc.Name),
-                "Id",
-                "Name",
-                trainer.FitnessCenterId
-            );
-            return View(trainer);
+            var trainerFromDb = await _context.Trainer.FirstOrDefaultAsync(t => t.Id == id);
+            if (trainerFromDb == null) return NotFound();
+
+            // Güvenli güncelleme (Update(trainer) yerine)
+            trainerFromDb.FullName = trainer.FullName;
+            trainerFromDb.Specialty = trainer.Specialty;
+            trainerFromDb.Bio = trainer.Bio;
+            trainerFromDb.FitnessCenterId = trainer.FitnessCenterId;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TrainerExists(trainer.Id))
+                    return NotFound();
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Trainers/Delete/5
@@ -140,10 +151,17 @@ namespace GymTrack.Controllers
         {
             var trainer = await _context.Trainer.FindAsync(id);
             if (trainer != null)
+            {
                 _context.Trainer.Remove(trainer);
+                await _context.SaveChangesAsync();
+            }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool TrainerExists(int id)
+        {
+            return _context.Trainer.Any(e => e.Id == id);
         }
     }
 }
