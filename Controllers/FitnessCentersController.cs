@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GymTrack.Data;
 using GymTrack.Models;
@@ -28,17 +25,13 @@ namespace GymTrack.Controllers
         // GET: FitnessCenters/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var fitnessCenter = await _context.FitnessCenter
+                .Include(fc => fc.Trainers)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (fitnessCenter == null)
-            {
-                return NotFound();
-            }
+
+            if (fitnessCenter == null) return NotFound();
 
             return View(fitnessCenter);
         }
@@ -50,86 +43,61 @@ namespace GymTrack.Controllers
         }
 
         // POST: FitnessCenters/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Description,OpeningTime,ClosingTime")] FitnessCenter fitnessCenter)
+        public async Task<IActionResult> Create(FitnessCenter fitnessCenter)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(fitnessCenter);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(fitnessCenter);
+            if (!ModelState.IsValid)
+                return View(fitnessCenter);
+
+            _context.FitnessCenter.Add(fitnessCenter);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: FitnessCenters/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var fitnessCenter = await _context.FitnessCenter.FindAsync(id);
-            if (fitnessCenter == null)
-            {
-                return NotFound();
-            }
+            if (fitnessCenter == null) return NotFound();
+
             return View(fitnessCenter);
         }
 
         // POST: FitnessCenters/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Description,OpeningTime,ClosingTime")] FitnessCenter fitnessCenter)
+        public async Task<IActionResult> Edit(int id, FitnessCenter fitnessCenter)
         {
-            if (id != fitnessCenter.Id)
-            {
-                return NotFound();
-            }
+            if (id != fitnessCenter.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(fitnessCenter);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FitnessCenterExists(fitnessCenter.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(fitnessCenter);
+            if (!ModelState.IsValid)
+                return View(fitnessCenter);
+
+            var fcFromDb = await _context.FitnessCenter.FindAsync(id);
+            if (fcFromDb == null) return NotFound();
+
+            fcFromDb.Name = fitnessCenter.Name;
+            fcFromDb.Address = fitnessCenter.Address;
+            fcFromDb.Description = fitnessCenter.Description;
+            fcFromDb.OpeningTime = fitnessCenter.OpeningTime;
+            fcFromDb.ClosingTime = fitnessCenter.ClosingTime;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: FitnessCenters/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var fitnessCenter = await _context.FitnessCenter
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (fitnessCenter == null)
-            {
-                return NotFound();
-            }
+
+            if (fitnessCenter == null) return NotFound();
 
             return View(fitnessCenter);
         }
@@ -143,15 +111,10 @@ namespace GymTrack.Controllers
             if (fitnessCenter != null)
             {
                 _context.FitnessCenter.Remove(fitnessCenter);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FitnessCenterExists(int id)
-        {
-            return _context.FitnessCenter.Any(e => e.Id == id);
         }
     }
 }

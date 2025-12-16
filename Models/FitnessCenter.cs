@@ -10,12 +10,9 @@ namespace GymTrack.Models
         public string? Address { get; set; }
         public string? Description { get; set; }
 
-        // Çalışma saatleri 
         public string? OpeningTime { get; set; }
         public string? ClosingTime { get; set; }
 
-        // İlişkiler
-        public ICollection<Service>? Services { get; set; }
         public ICollection<Trainer>? Trainers { get; set; }
     }
 }
