@@ -1,4 +1,4 @@
-using GymTrack.Data;
+ï»¿using GymTrack.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,14 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 // MVC
 builder.Services.AddControllersWithViews();
 
-// Razor Pages (Identity UI için gerekli)
+// Razor Pages (Identity UI iÃ§in gerekli)
 builder.Services.AddRazorPages();
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity + Roles (Admin/Uye) + þifre kuralý "sau" kabul etsin
+// Identity + Roles (Admin/Uye) + "sau" ÅŸifre kuralÄ±
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -30,7 +30,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 var app = builder.Build();
 
-// Hata sayfalarý
+// Hata sayfalarÄ±
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -42,15 +42,19 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Identity middleware (sýra önemli)
+// Identity middleware (sÄ±ra Ã¶nemli)
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Route’lar
+// âœ… API Controller routeâ€™larÄ± (REST API iÃ§in ÅŸart)
+app.MapControllers();
+
+// MVC route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Identity UI route
 app.MapRazorPages();
 
 // Admin + roller seed
