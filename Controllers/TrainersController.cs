@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using GymTrack.Models;
 
 namespace GymTrack.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TrainersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -110,23 +112,12 @@ namespace GymTrack.Controllers
             var trainerFromDb = await _context.Trainer.FirstOrDefaultAsync(t => t.Id == id);
             if (trainerFromDb == null) return NotFound();
 
-            // Güvenli güncelleme (Update(trainer) yerine)
             trainerFromDb.FullName = trainer.FullName;
             trainerFromDb.Specialty = trainer.Specialty;
             trainerFromDb.Bio = trainer.Bio;
             trainerFromDb.FitnessCenterId = trainer.FitnessCenterId;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TrainerExists(trainer.Id))
-                    return NotFound();
-                throw;
-            }
-
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -155,13 +146,7 @@ namespace GymTrack.Controllers
                 _context.Trainer.Remove(trainer);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool TrainerExists(int id)
-        {
-            return _context.Trainer.Any(e => e.Id == id);
         }
     }
 }
