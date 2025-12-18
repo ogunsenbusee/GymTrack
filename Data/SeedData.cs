@@ -15,12 +15,20 @@ namespace GymTrack.Data
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
+            // Roller
             string[] roles = { "Admin", "Uye" };
 
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                {
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole(role));
+                    if (!roleResult.Succeeded)
+                    {
+                        var errors = string.Join(" | ", roleResult.Errors.Select(e => e.Description));
+                        throw new Exception("Rol oluşturulamadı: " + errors);
+                    }
+                }
             }
 
             // Ödevde istenen admin hesabı
@@ -28,6 +36,7 @@ namespace GymTrack.Data
             var adminPassword = "sau";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
             if (adminUser == null)
             {
                 adminUser = new IdentityUser
@@ -46,7 +55,14 @@ namespace GymTrack.Data
             }
 
             if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
-                await userManager.AddToRoleAsync(adminUser, "Admin");
+            {
+                var addRoleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+                if (!addRoleResult.Succeeded)
+                {
+                    var errors = string.Join(" | ", addRoleResult.Errors.Select(e => e.Description));
+                    throw new Exception("Admin role eklenemedi: " + errors);
+                }
+            }
         }
     }
 }
