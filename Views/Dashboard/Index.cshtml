@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Panel";
+}
+
+<h2 class="mb-3">GymTrack Panel</h2>
+
+<p class="text-muted">Tüm modüllere tek ekrandan erişim.</p>
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">AI Coach</h5>
+                <p class="card-text">Kişiye özel 4 haftalık plan üret.</p>
+                <a class="btn btn-primary" asp-controller="AiCoach" asp-action="Index">Aç</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Trainers</h5>
+                <p class="card-text">Eğitmen CRUD ekranı.</p>
+                <a class="btn btn-outline-primary" asp-controller="Trainers" asp-action="Index">Liste</a>
+                <a class="btn btn-outline-success ms-2" asp-controller="Trainers" asp-action="Create">Yeni</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Fitness Centers</h5>
+                <p class="card-text">Spor salonu CRUD ekranı.</p>
+                <a class="btn btn-outline-primary" asp-controller="FitnessCenters" asp-action="Index">Liste</a>
+                <a class="btn btn-outline-success ms-2" asp-controller="FitnessCenters" asp-action="Create">Yeni</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Appointments</h5>
+                <p class="card-text">Randevu modülü.</p>
+                <a class="btn btn-outline-primary" asp-controller="Appointments" asp-action="My">Randevularım</a>
+                <a class="btn btn-outline-dark ms-2" asp-controller="Appointments" asp-action="Manage">Yönetim</a>
+                <div class="form-text">“Yönetim” admin için.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">API</h5>
+                <p class="card-text">JSON endpointler.</p>
+                <a class="btn btn-outline-secondary" href="/api/trainersapi" target="_blank">/api/trainersapi</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Hesap</h5>
+                <p class="card-text">Giriş/Çıkış ve hesap işlemleri.</p>
+                <a class="btn btn-outline-secondary" href="/Identity/Account/Manage">Profil</a>
+                <a class="btn btn-outline-danger ms-2" href="/Identity/Account/Logout">Çıkış</a>
+            </div>
+        </div>
+    </div>
+
+</div>
