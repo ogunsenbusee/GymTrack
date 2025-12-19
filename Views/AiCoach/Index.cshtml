@@ -1,0 +1,58 @@
+﻿@model GymTrack.Services.WorkoutAiRequest
+@{
+    ViewData["Title"] = "AI Coach";
+    var ok = ViewBag.Ok as bool?;
+    var error = ViewBag.Error as string;
+    var json = ViewBag.Json as string;
+}
+
+<h2>AI Coach - Antrenman Planı</h2>
+
+<form asp-action="Index" method="post" class="mt-3">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label>Boy (cm)</label>
+        <input asp-for="HeightCm" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Kilo (kg)</label>
+        <input asp-for="WeightKg" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Hedef</label>
+        <input asp-for="Goal" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Seviye</label>
+        <input asp-for="Level" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Haftada Kaç Gün</label>
+        <input asp-for="DaysPerWeek" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Ekipman</label>
+        <input asp-for="Equipment" class="form-control" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Plan Üret</button>
+</form>
+
+@if (ok == true)
+{
+    <hr />
+    <h4>Üretilen Plan (JSON)</h4>
+    <pre style="background:#111;color:#eee;padding:12px;">@json</pre>
+}
+else if (!string.IsNullOrWhiteSpace(error))
+{
+    <div class="alert alert-danger mt-3">
+        <b>Hata:</b> @error
+    </div>
+}
