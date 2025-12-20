@@ -18,18 +18,20 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+
 builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
+
+
 builder.Services.AddHttpClient<OpenAiWorkoutService>();
-builder.Services.AddScoped<OpenAiWorkoutService>();
 
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
 
-    // ✅ seed
     await DbSeeder.SeedAsync(scope.ServiceProvider);
 }
 
@@ -49,8 +51,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
-
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 
