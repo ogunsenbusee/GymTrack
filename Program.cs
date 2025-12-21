@@ -5,37 +5,61 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services
-    .AddDefaultIdentity<IdentityUser>(options =>
+    options.UseSqlServer(connectionString, sqlOptions =>
     {
-        options.SignIn.RequireConfirmedAccount = false;
-    })
+        
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
+    }));
+
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddControllersWithViews();
+
 
 builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
-
-
 builder.Services.AddHttpClient<OpenAiWorkoutService>();
+builder.Services.AddScoped<OpenAiWorkoutService>();
+
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
 
 var app = builder.Build();
 
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
-
-    await DbSeeder.SeedAsync(scope.ServiceProvider);
+    var services = scope.ServiceProvider;
+    try
+    {
+        await DbSeeder.SeedAsync(services);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Veritabanı oluşturulurken hata: " + ex.Message);
+    }
 }
 
-if (!app.Environment.IsDevelopment())
+
+if (app.Environment.IsDevelopment())
+{
+    
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
@@ -51,7 +75,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 
