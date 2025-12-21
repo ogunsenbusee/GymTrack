@@ -1,145 +1,110 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 
 namespace GymTrack.Services
 {
     public class OpenAiWorkoutService
     {
-        private readonly HttpClient _http;
-        private readonly OpenAiOptions _opt;
+        private readonly HttpClient _httpClient;
+        private readonly OpenAiOptions _options;
 
-        public OpenAiWorkoutService(HttpClient http, IOptions<OpenAiOptions> opt)
+        public OpenAiWorkoutService(HttpClient httpClient, IOptions<OpenAiOptions> options)
         {
-            _http = http;
-            _opt = opt.Value;
+            _httpClient = httpClient;
+            _options = options.Value;
+
+            if (!string.IsNullOrEmpty(_options.ApiKey))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
+            }
         }
 
-        public async Task<WorkoutAiResult> GeneratePlanAsync(WorkoutAiRequest req, CancellationToken ct = default)
+        public async Task<string> GetWorkoutPlanAsync(string prompt)
         {
-            if (string.IsNullOrWhiteSpace(_opt.ApiKey))
+            if (string.IsNullOrEmpty(_options.ApiKey))
             {
-                return new WorkoutAiResult
-                {
-                    Ok = false,
-                    Error = "OpenAI API anahtarı yok. user-secrets içine ekle."
-                };
+                return "⚠ API Anahtarı tanımlanmamış.";
             }
 
-            var prompt =
-$@"Kullanıcı:
-- Boy: {req.HeightCm} cm
-- Kilo: {req.WeightKg} kg
-- Hedef: {req.Goal}
-- Seviye: {req.Level}
-- Haftada: {req.DaysPerWeek} gün
-- Ekipman: {req.Equipment}
-
-4 haftalık antrenman planı üret.
-SADECE JSON döndür (json_object).";
-
-            var payload = new
+            var requestBody = new
             {
-                model = _opt.Model,
-                input = prompt,
-                text = new { format = new { type = "json_object" } }
+                model = "gpt-3.5-turbo",
+                messages = new[]
+                {
+                    new { role = "system", content = "Sen profesyonel bir fitness koçusun. Türkçe cevap ver." },
+                    new { role = "user", content = prompt }
+                },
+                max_tokens = 1000
             };
 
-            using var msg = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/responses");
-            msg.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _opt.ApiKey);
-            msg.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-
-            using var resp = await _http.SendAsync(msg, ct);
-            var body = await resp.Content.ReadAsStringAsync(ct);
-
-            if (!resp.IsSuccessStatusCode)
-            {
-                return new WorkoutAiResult
-                {
-                    Ok = false,
-                    Error = $"OpenAI hata: {resp.StatusCode} | {body}"
-                };
-            }
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
-                using var doc = JsonDocument.Parse(body);
-
-                string? jsonText = null;
-
-                if (doc.RootElement.TryGetProperty("output_text", out var outputText))
-                    jsonText = outputText.GetString();
-
-                if (string.IsNullOrWhiteSpace(jsonText) &&
-                    doc.RootElement.TryGetProperty("output", out var outputArr) &&
-                    outputArr.ValueKind == JsonValueKind.Array)
+                var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+                if (response.IsSuccessStatusCode)
                 {
-                    foreach (var item in outputArr.EnumerateArray())
-                    {
-                        if (item.TryGetProperty("content", out var contentArr) &&
-                            contentArr.ValueKind == JsonValueKind.Array)
-                        {
-                            foreach (var c in contentArr.EnumerateArray())
-                            {
-                                if (c.TryGetProperty("text", out var t))
-                                {
-                                    jsonText = t.GetString();
-                                    if (!string.IsNullOrWhiteSpace(jsonText))
-                                        break;
-                                }
-                            }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(jsonText))
-                            break;
-                    }
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(responseString);
+                    return doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
                 }
-
-                if (string.IsNullOrWhiteSpace(jsonText))
-                {
-                    return new WorkoutAiResult
-                    {
-                        Ok = false,
-                        Error = "AI cevabı çözümlenemedi.",
-                        Raw = body
-                    };
-                }
-
-                return new WorkoutAiResult
-                {
-                    Ok = true,
-                    Json = jsonText,
-                    Raw = body
-                };
+                return $"Hata: {response.StatusCode}";
             }
             catch (Exception ex)
             {
-                return new WorkoutAiResult
-                {
-                    Ok = false,
-                    Error = "AI parse hata: " + ex.Message,
-                    Raw = body
-                };
+                return $"Bağlantı hatası: {ex.Message}";
             }
         }
-    }
 
-    public class WorkoutAiRequest
-    {
-        public int HeightCm { get; set; }
-        public int WeightKg { get; set; }
-        public string Goal { get; set; } = "Kilo verme";
-        public string Level { get; set; } = "Başlangıç";
-        public int DaysPerWeek { get; set; } = 3;
-        public string Equipment { get; set; } = "Salonda temel ekipman";
-    }
+        
+        public async Task<string> GenerateImageAsync(string imagePrompt)
+        {
+            if (string.IsNullOrEmpty(_options.ApiKey)) return null;
 
-    public class WorkoutAiResult
-    {
-        public bool Ok { get; set; }
-        public string? Json { get; set; }
-        public string? Raw { get; set; }
-        public string? Error { get; set; }
+            
+            var requestBody = new
+            {
+                model = "dall-e-3", 
+                prompt = imagePrompt,
+                n = 1, 
+                size = "1024x1024",
+                quality = "standard",
+                response_format = "url"
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                
+                var response = await _httpClient.PostAsync("https://api.openai.com/v1/images/generations", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(responseString);
+                    
+                    string imageUrl = doc.RootElement.GetProperty("data")[0].GetProperty("url").GetString();
+                    return imageUrl;
+                }
+                else
+                {
+                    
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"DALL-E Hatası: {errorResponse}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DALL-E Bağlantı Hatası: {ex.Message}");
+                return null;
+            }
+        }
     }
 }
