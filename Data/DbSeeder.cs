@@ -1,46 +1,48 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
 namespace GymTrack.Data
 {
     public static class DbSeeder
     {
-        public static async Task SeedAsync(IServiceProvider services)
+        public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
-            using var scope = services.CreateScope();
+            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-            string[] roles = { "Admin", "Member" };
-            foreach (var role in roles)
+           
+            string[] roleNames = { "Admin", "Member" };
+            foreach (var roleName in roleNames)
             {
-                if (!await roleManager.RoleExistsAsync(role))
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
             }
 
-            var adminEmail = "admin@gymtrack.com";
-            var admin = await userManager.FindByEmailAsync(adminEmail);
+           
+            var adminEmail = "b211210021@sakarya.edu.tr";
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-            if (admin == null)
+            if (adminUser == null)
             {
-                admin = new IdentityUser
+                var newAdmin = new IdentityUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
                     EmailConfirmed = true
                 };
 
-                var created = await userManager.CreateAsync(admin, "Admin123!");
-                if (!created.Succeeded)
+               
+                var result = await userManager.CreateAsync(newAdmin, "sau");
+
+                if (result.Succeeded)
                 {
-                    var msg = string.Join(" | ", created.Errors.Select(e => e.Description));
-                    throw new Exception("Admin oluşturulamadı: " + msg);
+                    await userManager.AddToRoleAsync(newAdmin, "Admin");
                 }
             }
-
-            if (!await userManager.IsInRoleAsync(admin, "Admin"))
-                await userManager.AddToRoleAsync(admin, "Admin");
         }
     }
 }

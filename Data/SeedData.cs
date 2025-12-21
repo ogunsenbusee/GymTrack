@@ -15,7 +15,7 @@ namespace GymTrack.Data
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-            // Roller
+            
             string[] roles = { "Admin", "Uye" };
 
             foreach (var role in roles)
@@ -31,8 +31,8 @@ namespace GymTrack.Data
                 }
             }
 
-            // Ödevde istenen admin hesabı
-            var adminEmail = "ogrencinumarasi@sakarya.edu.tr";
+            
+            var adminEmail = "b211210021@sakarya.edu.tr";
             var adminPassword = "sau";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);

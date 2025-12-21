@@ -10,7 +10,12 @@ namespace GymTrack.Data
             : base(options)
         {
         }
-        public DbSet<GymTrack.Models.FitnessCenter> FitnessCenter { get; set; } = default!;
-        public DbSet<GymTrack.Models.Trainer> Trainer { get; set; } = default!;
+
+        
+        public DbSet<Appointment> Appointments { get; set; }
+
+        public DbSet<Trainer> Trainer { get; set; }
+        public DbSet<FitnessCenter> FitnessCenter { get; set; }
+        public DbSet<Service> Service { get; set; }
     }
 }
