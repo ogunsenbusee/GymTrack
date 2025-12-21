@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GymTrack.Controllers.Api
 {
     [ApiController]
-    [Route("api/trainers")] // 🔴 NET ROUTE
+    [Route("api/trainers")] 
     [Authorize(Roles = "Admin")]
     public class TrainersApiController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace GymTrack.Controllers.Api
             _context = context;
         }
 
-        // GET: api/trainers
+        
         [HttpGet]
         public async Task<IActionResult> GetAll(
             string? specialty,
@@ -56,7 +56,7 @@ namespace GymTrack.Controllers.Api
             return Ok(result);
         }
 
-        // GET: api/trainers/5
+        
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
