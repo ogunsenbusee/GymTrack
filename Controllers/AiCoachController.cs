@@ -1,71 +1,68 @@
-﻿using GymTrack.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using GymTrack.Services;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace GymTrack.Controllers
 {
-    [Authorize]
     public class AiCoachController : Controller
     {
-        private readonly OpenAiWorkoutService _ai;
+        private readonly OpenAiWorkoutService _workoutService;
 
-        public AiCoachController(OpenAiWorkoutService ai)
+        public AiCoachController(OpenAiWorkoutService workoutService)
         {
-            _ai = ai;
+            _workoutService = workoutService;
         }
 
-        [HttpGet]
         public IActionResult Index()
         {
-            return View(new WorkoutAiRequest());
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(WorkoutAiRequest model, CancellationToken ct)
+        public async Task<IActionResult> GeneratePlan(
+            int age,
+            int height,
+            int weight,
+            string gender,
+            string target,
+            string level,
+            int days,
+            string equipment,
+            IFormFile? bodyImage)
         {
-            if (!ModelState.IsValid) return View(model);
+            
+            var textPrompt = $"Bana 4 haftalık detaylı bir antrenman programı hazırla. " +
+                             $"Bilgilerim: Yaş: {age}, Cinsiyet: {gender}, Boy: {height}cm, Kilo: {weight}kg. " +
+                             $"Hedefim: {target}. Seviyem: {level}. " +
+                             $"Haftada {days} gün çalışacağım. Ekipman durumum: {equipment}. " +
+                             "Programı haftalara böl ve Türkçe yaz.";
 
-            var result = await _ai.GeneratePlanAsync(model, ct);
+            var plan = await _workoutService.GetWorkoutPlanAsync(textPrompt);
+            ViewBag.Plan = plan;
 
-            if (result.Ok && !string.IsNullOrWhiteSpace(result.Json))
+            
+            string englishTarget = target switch
             {
-                // JSON'u pretty yap
-                try
-                {
-                    using var doc = JsonDocument.Parse(result.Json);
-                    ViewBag.PrettyJson = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+                "Yağ Yakımı" => "very lean, defined abs, athletic physique",
+                "Kas Kazanımı" => "muscular, ripped physique, broad shoulders",
+                "Güç Artışı" => "strong, powerful build, powerlifter physique",
+                "Dayanıklılık" => "lean runner's physique, very fit",
+                _ => "fit and healthy physique"
+            };
 
-                    // meta ve notları çıkarmaya çalış
-                    if (doc.RootElement.TryGetProperty("meta", out var meta))
-                        ViewBag.Meta = meta;
+            string englishGender = gender == "Erkek" ? "man" : "woman";
 
-                    if (doc.RootElement.TryGetProperty("notlar", out var notes) && notes.ValueKind == JsonValueKind.Array)
-                        ViewBag.Notes = notes;
-                }
-                catch
-                {
-                    ViewBag.PrettyJson = result.Json;
-                }
-            }
+            
+            string imagePrompt = $"A high quality, realistic photo of a {englishGender}, approximately {age} years old, with a {englishTarget}. " +
+                                 $"They are standing in a modern gym setting with good lighting, looking confident and fit after a successful workout program. " +
+                                 $"Fitness photography style.";
 
-            ViewBag.Ok = result.Ok;
-            ViewBag.Error = result.Error;
-            ViewBag.RawJson = result.Json;
+            
+            string generatedImageUrl = await _workoutService.GenerateImageAsync(imagePrompt);
+            ViewBag.GeneratedImageUrl = generatedImageUrl;
 
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult DownloadJson(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json))
-                return RedirectToAction(nameof(Index));
-
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            return File(bytes, "application/json", "workout-plan.json");
+            return View("Index");
         }
     }
 }
