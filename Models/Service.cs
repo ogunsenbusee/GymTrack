@@ -8,7 +8,7 @@ namespace GymTrack.Models
 
         public string Name { get; set; } = string.Empty;
 
-        // Fiyat için decimal precision (uyarıyı düzeltir)
+        
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace GymTrack.Models
 {
@@ -6,19 +8,25 @@ namespace GymTrack.Models
     {
         public int Id { get; set; }
 
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        
+        public string? UserId { get; set; }
 
-        public bool IsApproved { get; set; } = false;
-        public decimal Price { get; set; }
-
+        
         public int TrainerId { get; set; }
         public Trainer? Trainer { get; set; }
 
-        public int ServiceId { get; set; }
-        public Service? Service { get; set; }
+        
+        [Required]
+        public string FullName { get; set; } = string.Empty;
 
-        // AspNetUsers tablosundaki kullanıcının Id'si
-        public string UserId { get; set; } = string.Empty;
+        [Required]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime Date { get; set; }
+
+        public string? Note { get; set; }
+
+        public string Status { get; set; } = "Beklemede";
     }
 }
