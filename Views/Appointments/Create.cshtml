@@ -1,0 +1,58 @@
+﻿@model GymTrack.Models.Appointment
+
+@{
+    ViewData["Title"] = "Yeni Randevu Al";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Yeni Randevu Oluştur</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="TrainerId" class="form-label">Eğitmen Seçiniz</label>
+                            <select asp-for="TrainerId" class="form-control" asp-items="ViewBag.TrainerId">
+                                <option value="">-- Bir Eğitmen Seçin --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">Adınız Soyadınız</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Örn: Ahmet Yılmaz" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">Telefon Numaranız</label>
+                            <input asp-for="Phone" class="form-control" placeholder="0555..." />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Date" class="form-label">Randevu Tarihi</label>
+                            <input asp-for="Date" class="form-control" type="datetime-local"
+                                   value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Note" class="form-label">Notunuz (Opsiyonel)</label>
+                            <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Randevuyu Kaydet</button>
+                            <a asp-action="MyAppointments" class="btn btn-secondary">İptal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

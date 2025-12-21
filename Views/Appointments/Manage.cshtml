@@ -1,0 +1,68 @@
+﻿@model IEnumerable<GymTrack.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Randevu Yönetimi";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>🗓️ Tüm Randevular (Yönetim)</h2>
+        <span class="badge bg-primary">Admin Paneli</span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Üye Adı</th>
+                        <th>Tarih</th>
+                        <th>Eğitmen</th>
+                        <th>Durum</th>
+                        <th class="text-center">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="align-middle">@item.FullName</td>
+                            <td class="align-middle">@item.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td class="align-middle">
+                                <span class="fw-bold">@(item.Trainer?.FullName ?? "-")</span>
+                            </td>
+                            <td class="align-middle">
+                                @if (item.Status == "Onaylandı")
+                                {
+                                    <span class="badge bg-success">Onaylandı</span>
+                                }
+                                else if (item.Status == "İptal Edildi")
+                                {
+                                    <span class="badge bg-danger">İptal Edildi</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Beklemede</span>
+                                }
+                            </td>
+                            <td class="text-center align-middle">
+                                <a asp-action="Approve" asp-route-id="@item.Id" class="btn btn-sm btn-success me-1">
+                                    ✔ Onayla
+                                </a>
+
+                                <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1">
+                                    ✖ İptal
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Bu kaydı tamamen silmek istediğinize emin misiniz?');">
+                                    🗑 Sil
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

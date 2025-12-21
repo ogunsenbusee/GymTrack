@@ -1,76 +1,92 @@
 ﻿@{
-    ViewData["Title"] = "Panel";
+    ViewData["Title"] = "Kontrol Paneli";
 }
 
-<h2 class="mb-3">GymTrack Panel</h2>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">GymTrack Paneli</h1>
+        <p class="lead text-muted">Tüm modüllere tek ekrandan erişim.</p>
+    </div>
 
-<p class="text-muted">Tüm modüllere tek ekrandan erişim.</p>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Yapay Zeka Koçu</h5>
+                    <p class="card-text text-muted">Kişiye özel 4 haftalık plan üret.</p>
+                    <a asp-controller="AiCoach" asp-action="Index" class="btn btn-primary w-100">
+                        <i class="bi bi-magic"></i> Plan Oluştur
+                    </a>
+                </div>
+            </div>
+        </div>
 
-<div class="row g-3">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Eğitmenler</h5>
+                    <p class="card-text text-muted">Kayıtlı eğitmenlerin listesi.</p>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Trainers" asp-action="Index" class="btn btn-outline-primary flex-grow-1">Listele</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Trainers" asp-action="Create" class="btn btn-outline-success">Yeni Ekle</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">AI Coach</h5>
-                <p class="card-text">Kişiye özel 4 haftalık plan üret.</p>
-                <a class="btn btn-primary" asp-controller="AiCoach" asp-action="Index">Aç</a>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Spor Salonları</h5>
+                    <p class="card-text text-muted">Anlaşmalı salonların listesi.</p>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="FitnessCenters" asp-action="Index" class="btn btn-outline-primary flex-grow-1">Listele</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="FitnessCenters" asp-action="Create" class="btn btn-outline-success">Yeni Ekle</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Randevu Sistemi</h5>
+                    <p class="card-text text-muted">Randevu al veya geçmiş randevularını gör.</p>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Appointments" asp-action="MyAppointments" class="btn btn-outline-primary">Randevularım</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Appointments" asp-action="Manage" class="btn btn-outline-dark">Yönetim Paneli</a>
+                        }
+                    </div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <small class="text-muted d-block mt-2 fst-italic">“Yönetim” sadece admin içindir.</small>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Hesabım</h5>
+                    <p class="card-text text-muted">Güvenli çıkış ve profil işlemleri.</p>
+                    <div class="d-flex gap-2">
+                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Trainers</h5>
-                <p class="card-text">Eğitmen CRUD ekranı.</p>
-                <a class="btn btn-outline-primary" asp-controller="Trainers" asp-action="Index">Liste</a>
-                <a class="btn btn-outline-success ms-2" asp-controller="Trainers" asp-action="Create">Yeni</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Fitness Centers</h5>
-                <p class="card-text">Spor salonu CRUD ekranı.</p>
-                <a class="btn btn-outline-primary" asp-controller="FitnessCenters" asp-action="Index">Liste</a>
-                <a class="btn btn-outline-success ms-2" asp-controller="FitnessCenters" asp-action="Create">Yeni</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Appointments</h5>
-                <p class="card-text">Randevu modülü.</p>
-                <a class="btn btn-outline-primary" asp-controller="Appointments" asp-action="My">Randevularım</a>
-                <a class="btn btn-outline-dark ms-2" asp-controller="Appointments" asp-action="Manage">Yönetim</a>
-                <div class="form-text">“Yönetim” admin için.</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">API</h5>
-                <p class="card-text">JSON endpointler.</p>
-                <a class="btn btn-outline-secondary" href="/api/trainersapi" target="_blank">/api/trainersapi</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Hesap</h5>
-                <p class="card-text">Giriş/Çıkış ve hesap işlemleri.</p>
-                <a class="btn btn-outline-secondary" href="/Identity/Account/Manage">Profil</a>
-                <a class="btn btn-outline-danger ms-2" href="/Identity/Account/Logout">Çıkış</a>
-            </div>
-        </div>
-    </div>
-
 </div>

@@ -1,0 +1,28 @@
+﻿@model IEnumerable<GymTrack.Models.Appointment>
+
+<div class="container mt-4">
+    <h2>Randevularım</h2>
+    <a asp-action="Create" class="btn btn-success mb-3">+ Yeni Randevu Al</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Eğitmen</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@(item.Trainer?.FullName ?? "-")</td>
+                    <td>
+                        <span class="badge bg-info">@item.Status</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,56 +1,89 @@
 ﻿@model IEnumerable<GymTrack.Models.Trainer>
 
 @{
-    ViewData["Title"] = "Trainers";
+    ViewData["Title"] = "Eğitmenler";
 }
 
-<h1>Trainers</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-</p>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Full Name</th>
-            <th>Specialty</th>
-            <th>Bio</th>
-            <th>Fitness Center</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>💪 Eğitmenler Listesi</h2>
+        @if (User.IsInRole("Admin"))
         {
-            foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.FullName</td>
-                    <td>@item.Specialty</td>
-                    <td>
-                        @(string.IsNullOrWhiteSpace(item.Bio)
-                                        ? "-"
-                                        : item.Bio.Length > 50
-                                        ? item.Bio.Substring(0, 50) + "..."
-                                        : item.Bio)
-                    </td>
-                    <td>@(item.FitnessCenter?.Name ?? "-")</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-            }
+            <a asp-action="Create" class="btn btn-primary fw-bold">
+                <i class="bi bi-person-plus-fill"></i> Yeni Eğitmen Ekle
+            </a>
         }
-        else
-        {
-            <tr>
-                <td colspan="5" class="text-center">
-                    No trainers found.
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Eğitmen</th>
+                            <th>Uzmanlık</th>
+                            <th>Salon</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold d-block text-dark">@item.FullName</span>
+                                            <small class="text-muted" style="font-size: 0.8rem;">
+                                                @(item.Bio != null && item.Bio.Length > 30 ? item.Bio.Substring(0, 30) + "..." : item.Bio)
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-info text-dark">@item.Specialty</span>
+                                </td>
+
+                                <td>
+                                    @if (item.FitnessCenter != null)
+                                    {
+                                        <small class="fw-bold text-primary"><i class="bi bi-geo-alt-fill"></i> @item.FitnessCenter.Name</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <a asp-controller="Appointments" asp-action="Create" asp-route-trainerId="@item.Id" class="btn btn-sm btn-success fw-bold me-1">
+                                        <i class="bi bi-calendar-check"></i> Randevu Al
+                                    </a>
+
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Profil Detayı">
+                                        <i class="bi bi-card-text"></i>
+                                    </a>
+
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning ms-1" title="Düzenle">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger ms-1" title="Sil">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

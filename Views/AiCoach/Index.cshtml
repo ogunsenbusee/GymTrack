@@ -1,115 +1,114 @@
-﻿@using System.Text.Json
-@model GymTrack.Services.WorkoutAiRequest
-
-@{
-    ViewData["Title"] = "AI Coach";
-    var ok = ViewBag.Ok as bool?;
-    var error = ViewBag.Error as string;
-    var pretty = ViewBag.PrettyJson as string;
-    string rawJson = ViewBag.RawJson as string ?? "";
-    JsonElement? meta = null;
-    JsonElement? notes = null;
-
-    try
-    {
-        meta = (JsonElement?)ViewBag.Meta;
-        notes = (JsonElement?)ViewBag.Notes;
-    }
-    catch { }
+﻿@{
+    ViewData["Title"] = "Yapay Zeka Koçu";
 }
 
-<h2 class="mb-3">AI Coach - Antrenman Planı</h2>
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
 
-<form asp-action="Index" method="post" class="mt-2">
-    @Html.AntiForgeryToken()
+            <div class="text-center mb-4">
+                <h1 class="fw-bold text-primary"><i class="bi bi-robot"></i> Yapay Zeka Antrenörün</h1>
+                <p class="text-muted">Bilgilerini gir, saniyeler içinde sana özel programı al.</p>
+            </div>
 
-    <div class="mb-2">
-        <label class="form-label">Boy (cm)</label>
-        <input asp-for="HeightCm" class="form-control" />
-    </div>
+            <div class="card shadow border-0" style="border-radius: 15px;">
+                <div class="card-body p-5">
 
-    <div class="mb-2">
-        <label class="form-label">Kilo (kg)</label>
-        <input asp-for="WeightKg" class="form-control" />
-    </div>
+                    <form asp-action="GeneratePlan" method="post" enctype="multipart/form-data">
+                        <div class="row g-3">
 
-    <div class="mb-2">
-        <label class="form-label">Hedef</label>
-        <input asp-for="Goal" class="form-control" />
-    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Cinsiyet</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Erkek">Erkek</option>
+                                    <option value="Kadın">Kadın</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Yaş</label>
+                                <input type="number" name="age" class="form-control" placeholder="23" required />
+                            </div>
 
-    <div class="mb-2">
-        <label class="form-label">Seviye</label>
-        <input asp-for="Level" class="form-control" />
-    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Boy (cm)</label>
+                                <input type="number" name="height" class="form-control" placeholder="180" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Kilo (kg)</label>
+                                <input type="number" name="weight" class="form-control" placeholder="75" required />
+                            </div>
 
-    <div class="mb-2">
-        <label class="form-label">Haftada Kaç Gün</label>
-        <input asp-for="DaysPerWeek" class="form-control" />
-    </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-primary">Hedefin Nedir?</label>
+                                <select name="target" class="form-select form-select-lg">
+                                    <option value="Yağ Yakımı">🔥 Yağ Yakımı</option>
+                                    <option value="Kas Kazanımı">💪 Kas Kazanımı</option>
+                                    <option value="Güç Artışı">⚡ Güç Artışı</option>
+                                    <option value="Dayanıklılık">🏃 Dayanıklılık / Kondisyon</option>
+                                    <option value="Fit Görünüm">✨ Fit ve Sıkı Görünüm</option>
+                                </select>
+                            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Ekipman</label>
-        <input asp-for="Equipment" class="form-control" />
-    </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Seviye</label>
+                                <select name="level" class="form-select">
+                                    <option value="Başlangıç">Başlangıç</option>
+                                    <option value="Orta">Orta Seviye</option>
+                                    <option value="İleri">İleri Seviye</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Haftada Kaç Gün?</label>
+                                <input type="number" name="days" class="form-control" min="1" max="7" value="3" />
+                            </div>
 
-    <button class="btn btn-primary" type="submit">Plan Üret</button>
-</form>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Vücut/Ekipman Fotosu (İsteğe Bağlı)</label>
+                                <input type="file" name="bodyImage" class="form-control" accept="image/*">
+                            </div>
 
-@if (!string.IsNullOrWhiteSpace(error))
-{
-    <div class="alert alert-danger mt-3">
-        <b>Hata:</b> @error
-    </div>
-}
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Ekipman Durumu</label>
+                                <input type="text" name="equipment" class="form-control" placeholder="Örn: Sadece dambıl var..." />
+                            </div>
 
-@if (ok == true)
-{
-    <hr class="my-4" />
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
+                                    🚀 Programı Oluştur
+                                </button>
+                            </div>
+                        </div>
+                    </form>
 
-    <div class="d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Özet</h4>
+                </div>
+            </div>
 
-        <form asp-action="DownloadJson" method="post" class="ms-3">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="json" value="@rawJson" />
-            <button class="btn btn-outline-secondary">JSON indir</button>
-        </form>
-    </div>
-
-    <div class="mt-3">
-        @if (meta.HasValue)
+            @if (ViewBag.Plan != null)
+            {
+                <div class="card shadow-lg border-0 mt-5 mb-5 bg-white">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0 fw-bold">💪 Senin Planın</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.6;">@ViewBag.Plan</div>
+                    </div>
+                </div>
+            }
+        </div>
+        @if (ViewBag.GeneratedImageUrl != null)
         {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Meta</h5>
-                    <ul class="mb-0">
-                        <li><b>Süre:</b> @(meta.Value.TryGetProperty("sure", out var s) ? s.ToString() : "-")</li>
-                        <li><b>Hedef:</b> @(meta.Value.TryGetProperty("hedef", out var h) ? h.ToString() : "-")</li>
-                        <li><b>Seviye:</b> @(meta.Value.TryGetProperty("seviye", out var sev) ? sev.ToString() : "-")</li>
-                        <li><b>Frekans:</b> @(meta.Value.TryGetProperty("frekans", out var f) ? f.ToString() : "-")</li>
-                        <li><b>Ekipman:</b> @(meta.Value.TryGetProperty("ekipman", out var e) ? e.ToString() : "-")</li>
-                    </ul>
+            <div class="card shadow-lg border-0 mt-4 mb-5">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0 fw-bold">✨ Gelecekteki Sen: Hedef Görüntü</h4>
+                </div>
+                <div class="card-body p-0 text-center bg-dark">
+                    <img src="@ViewBag.GeneratedImageUrl" class="img-fluid" alt="Yapay Zeka Hedef Vücut" style="max-height: 600px; width: auto;">
+                    <div class="p-3 text-white-50">
+                        <small><i class="bi bi-stars"></i> Bu görüntü, girdiğin hedeflere göre yapay zeka (DALL-E 3) tarafından oluşturulmuştur.</small>
+                    </div>
                 </div>
             </div>
         }
-
-        @if (notes.HasValue && notes.Value.ValueKind == JsonValueKind.Array)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Notlar</h5>
-                    <ul class="mb-0">
-                        @foreach (var n in notes.Value.EnumerateArray())
-                        {
-                            <li>@n.ToString()</li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        }
     </div>
-
-    <h4 class="mt-4">Üretilen Plan (JSON)</h4>
-    <pre style="white-space:pre-wrap; background:#111; color:#eee; padding:12px; border-radius:8px;">@pretty</pre>
-}
+</div>
+</div>

@@ -1,51 +1,59 @@
 ﻿@model GymTrack.Models.Trainer
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Eğitmeni Düzenle";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0 fw-bold">✏️ Eğitmeni Düzenle</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h4>Trainer</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">Eğitmen Bilgileri</h5>
 
-            <input type="hidden" asp-for="Id" />
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Uzmanlık Alanı</label>
+                            <input asp-for="Specialty" class="form-control" />
+                            <span asp-validation-for="Specialty" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Biyografi / Hakkında</label>
+                            <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                        <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Çalışma Yeri</h5>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Bağlı Olduğu Spor Salonu</label>
+                            <select asp-for="FitnessCenterId" class="form-select" asp-items="ViewBag.FitnessCenterId"></select>
+                            <span asp-validation-for="FitnessCenterId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-save"></i> Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label asp-for="Specialty" class="control-label"></label>
-                <input asp-for="Specialty" class="form-control" />
-                <span asp-validation-for="Specialty" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Bio" class="control-label"></label>
-                <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
-                <span asp-validation-for="Bio" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="FitnessCenterId" class="control-label"></label>
-                <select asp-for="FitnessCenterId" class="form-control" asp-items="ViewBag.FitnessCenterId">
-                    <option value="">-- Select Fitness Center --</option>
-                </select>
-                <span asp-validation-for="FitnessCenterId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

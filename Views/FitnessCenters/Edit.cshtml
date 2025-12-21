@@ -1,20 +1,100 @@
 ﻿@model GymTrack.Models.FitnessCenter
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Spor Salonunu Düzenle";
 }
 
-<h1>Edit Fitness Center</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0 fw-bold">✏️ Spor Salonunu Düzenle</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <partial name="_Form" />
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">Genel Bilgiler</h5>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-</form>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Salon Adı</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Adres</label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Açıklama</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Açılış Saati</label>
+                                <input asp-for="OpeningTime" class="form-control" />
+                                <span asp-validation-for="OpeningTime" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Kapanış Saati</label>
+                                <input asp-for="ClosingTime" class="form-control" />
+                                <span asp-validation-for="ClosingTime" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">Üyelik Fiyatları (TL)</h5>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-success">1 Aylık Üyelik</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₺</span>
+                                    <input asp-for="PriceMonthly" class="form-control" type="number" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-success">3 Aylık Üyelik</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₺</span>
+                                    <input asp-for="Price3Months" class="form-control" type="number" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-success">6 Aylık Üyelik</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₺</span>
+                                    <input asp-for="Price6Months" class="form-control" type="number" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-success">12 Aylık (Yıllık)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₺</span>
+                                    <input asp-for="Price12Months" class="form-control" type="number" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                            <button type="submit" class="btn btn-warning px-4 fw-bold">
+                                <i class="bi bi-save"></i> Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @{
