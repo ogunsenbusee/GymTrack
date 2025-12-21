@@ -11,8 +11,8 @@ Ek olarak OpenAI API entegrasyonu ile AI Coach modülü kullanıcı bilgilerine 
 - Panel: /Dashboard üzerinden tüm modüllere tek ekrandan erişim
 
 ## Admin Hesabı
-- Email: admin@gymtrack.com
-- Şifre: Admin123!
+- Email: b211210021@sakarya.edu.tr
+- Şifre: sau
 
 ## Kurulum
 ```bash
